@@ -1,1 +1,1 @@
-Portfolio page of professional financial projects.
+Senior business and finance professional with deep expertise in financial analysis, forecasting, and performance management. Background spans financial control, accounting, and FP&A across the financial, real estate, and professional services sectors. Specialized in translating complex data into clear, decision-driving insights. Page for portfolio projects.
