@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Financial Statements Dashboard — Andrés Felipe Alarcón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #0d1b2e;
+      --navy-mid:  #112240;
+      --white:     #ffffff;
+      --off-white: #f8fafc;
+      --gray-100:  #f1f5f9;
+      --gray-200:  #e2e8f0;
+      --gray-300:  #cbd5e1;
+      --gray-500:  #64748b;
+      --gray-700:  #334155;
+      --gray-900:  #0f172a;
+      --text:      #1e293b;
+      --blue:      #1d4ed8;
+
+      --tag-tool-bg:     #fef3c7;
+      --tag-tool-text:   #92400e;
+      --tag-tool-border: #fcd34d;
+      --tag-fin-bg:      #fee2e2;
+      --tag-fin-text:    #991b1b;
+      --tag-fin-border:  #fca5a5;
+      --tag-data-bg:     #dbeafe;
+      --tag-data-text:   #1e40af;
+      --tag-data-border: #93c5fd;
+      --tag-other-bg:    #ede9fe;
+      --tag-other-text:  #5b21b6;
+      --tag-other-border:#c4b5fd;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0; z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 3rem;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .nav-brand {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--navy);
+      text-decoration: none;
+    }
+
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.67rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-back:hover { color: var(--navy); }
+
+    /* Red header band for this project */
+    .project-hero {
+      background: var(--navy);
+      padding: 8rem 3rem 4rem;
+      border-top: 6px solid #dc2626;
+    }
+
+    .project-hero-inner { max-width: 860px; margin: 0 auto; }
+
+    .breadcrumb {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .breadcrumb a { color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: #ffffff; }
+
+    .project-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: #64748b;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.8rem;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 300;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 1.8rem;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .meta-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: #64748b;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .meta-item span { color: rgba(255,255,255,0.75); }
+    .meta-item .live { color: #34d399; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 2rem; }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.59rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.58rem;
+      border-radius: 3px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .tag-tool  { background: var(--tag-tool-bg);  color: var(--tag-tool-text);  border-color: var(--tag-tool-border); }
+    .tag-fin   { background: var(--tag-fin-bg);   color: var(--tag-fin-text);   border-color: var(--tag-fin-border); }
+    .tag-data  { background: var(--tag-data-bg);  color: var(--tag-data-text);  border-color: var(--tag-data-border); }
+    .tag-other { background: var(--tag-other-bg); color: var(--tag-other-text); border-color: var(--tag-other-border); }
+
+    .action-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.67rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .action-btn.primary { background: #ffffff; color: var(--navy); font-weight: 600; }
+    .action-btn.primary:hover { background: var(--off-white); }
+    .action-btn.secondary { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+    .action-btn.secondary:hover { border-color: rgba(255,255,255,0.5); color: #ffffff; }
+
+    /* ── CONTENT ──────────────────────────── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 4rem 3rem 5rem;
+    }
+
+    .project-body { display: flex; flex-direction: column; gap: 3rem; }
+
+    h2 {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gray-700);
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    p {
+      font-size: 0.93rem;
+      color: var(--gray-700);
+      line-height: 1.85;
+      margin-bottom: 0.75rem;
+    }
+
+    p strong { color: var(--gray-900); font-weight: 600; }
+
+    ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    ul li {
+      font-size: 0.9rem;
+      color: var(--gray-700);
+      padding-left: 1.3rem;
+      position: relative;
+      line-height: 1.7;
+    }
+
+    ul li::before { content: '—'; position: absolute; left: 0; color: var(--gray-300); }
+    ul li strong { color: var(--gray-900); font-weight: 600; }
+
+    .embed-container {
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      background: var(--off-white);
+      overflow: hidden;
+    }
+
+    .embed-label {
+      padding: 0.75rem 1.2rem;
+      border-bottom: 1px solid var(--gray-200);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--white);
+    }
+
+    .embed-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #34d399; margin-right: 0.4rem; }
+
+    .embed-container iframe { width: 100%; height: 460px; border: none; display: block; }
+
+    .source-box {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid var(--gray-200);
+      background: var(--off-white);
+      border-radius: 3px;
+      margin-top: 1.2rem;
+    }
+
+    .source-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--gray-500);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .source-box a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .source-box a:hover { text-decoration: underline; }
+
+    .note {
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      border-left: 2px solid var(--gray-200);
+      padding-left: 1rem;
+      margin-top: 0.8rem;
+    }
+
+    footer {
+      background: var(--navy-mid);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 1.8rem 3rem;
+    }
+
+    .footer-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #64748b; }
+
+    .footer-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: #64748b;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+
+    .footer-back:hover { color: #ffffff; }
+
+    @media (max-width: 768px) {
+      nav, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .project-hero, .page-wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-brand">Andrés Felipe Alarcón</a>
+    <a href="index.html" class="nav-back">← Portfolio</a>
+  </nav>
+
+  <div class="project-hero">
+    <div class="project-hero-inner">
+      <div class="breadcrumb">
+        <a href="index.html">Portfolio</a>
+        <span>/</span>
+        <span>Project 01</span>
+      </div>
+
+      <p class="project-num">Project — 01 / 04</p>
+      <h1>Financial Statements<br>Dashboard</h1>
+
+      <div class="meta-row">
+        <span class="meta-item">Tool <span>Power BI</span></span>
+        <span class="meta-item">Source <span>Supersociedades</span></span>
+        <span class="meta-item">Status <span class="live">● Live</span></span>
+      </div>
+
+      <div class="tags">
+        <span class="tag tag-tool">Power BI</span>
+        <span class="tag tag-fin">Financial Analysis</span>
+        <span class="tag tag-fin">Financial Performance</span>
+        <span class="tag tag-fin">Financial Ratios</span>
+        <span class="tag tag-other">Financial Control</span>
+        <span class="tag tag-data">Data Analytics</span>
+      </div>
+
+      <div class="action-links">
+        <a href="https://app.powerbi.com/view?r=eyJrIjoiZGM0ZTBmOTAtMzViNS00ZTcyLWI0NWEtNjRmNGQzODU5OGUxIiwidCI6Ijk5ZjdiNTVlLTljYmUtNDY3Yi04MTQzLTkxOTc4MjkxOGFmYiIsImMiOjR9&pageName=40c9b8ebcdb417d0a74d" target="_blank" class="action-btn primary">↗ View Live Dashboard</a>
+        <a href="https://www.youtube.com/watch?v=0HnyB-jIQlg" target="_blank" class="action-btn secondary">▶ 5-Min Walkthrough</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-wrap">
+    <div class="project-body">
+
+      <div>
+        <div class="embed-container">
+          <div class="embed-label">
+            <span><span class="embed-dot"></span>Power BI · Live</span>
+            <span>Dashboard Financiero Terpel</span>
+          </div>
+          <iframe
+            title="Dashboard Financiero Terpel"
+            src="https://app.powerbi.com/view?r=eyJrIjoiZGM0ZTBmOTAtMzViNS00ZTcyLWI0NWEtNjRmNGQzODU5OGUxIiwidCI6Ijk5ZjdiNTVlLTljYmUtNDY3Yi04MTQzLTkxOTc4MjkxOGFmYiIsImMiOjR9&pageName=40c9b8ebcdb417d0a74d"
+            allowfullscreen="true">
+          </iframe>
+        </div>
+      </div>
+
+      <div>
+        <h2>Overview</h2>
+        <p>
+          This dashboard provides a structured analysis of <strong>Terpel's financial performance</strong>
+          over the past four years. The project was initiated because the stock appeared
+          <strong>undervalued in recent years</strong>, requiring a rigorous review of historical
+          trends and financial indicators to support an informed investment decision.
+        </p>
+        <p>
+          The data pipeline is <strong>fully automated and reusable</strong> — any Colombian company
+          registered with Supersociedades can be loaded without rebuilding the model, reducing
+          analysis time from days to hours.
+        </p>
+        <p class="note">Dashboard interface is in Spanish, reflecting the Colombian company context. Historical data only; forward projections require integration with a financial model.</p>
+      </div>
+
+      <div>
+        <h2>Data &amp; Methodology</h2>
+        <p>
+          Data sourced from the <strong>Superintendencia de Sociedades (Supersociedades)</strong>,
+          Colombia's official corporate financial reporting authority. Raw data was
+          <strong>extracted, cleaned, and structured in Excel using Power Query</strong>,
+          then modeled and visualized in Power BI.
+        </p>
+        <ul>
+          <li><strong>Balance Sheet</strong> — 4-year historical view of assets, liabilities, and equity</li>
+          <li><strong>Profit &amp; Loss Statement</strong> — Revenue, EBITDA, and net income evolution</li>
+        </ul>
+        <div class="source-box">
+          <span class="source-label">Official Source</span>
+          <a href="https://siis.ia.supersociedades.gov.co/#/massivereports" target="_blank">↗ Supersociedades — SIIS Massive Reports</a>
+        </div>
+      </div>
+
+      <div>
+        <h2>Dashboard Components</h2>
+        <p>Complete view of financial evolution, profitability, and capital structure — suitable for annual or monthly financial health reviews.</p>
+        <ul>
+          <li><strong>Financial Position Summary</strong> — Yearly indicators across balance sheet and income statement</li>
+          <li><strong>Horizontal Analysis</strong> — Year-over-year variation across all major line items</li>
+          <li><strong>Key Financial Ratios</strong> — Profitability, operational efficiency, liquidity, and solvency</li>
+          <li><strong>Cash Flow Breakdown</strong> — Operating, investing, and financing activities</li>
+          <li><strong>Free Cash Flow (FCF)</strong> — Net cash available to equity holders and lenders</li>
+        </ul>
+        <p class="note">Can be converted from annual to monthly or quarterly view without structural changes to the model.</p>
+      </div>
+
+      <div>
+        <h2>Business Value</h2>
+        <p>
+          This dashboard directly supports <strong>investment analysis, credit assessment,
+          and management reporting</strong> — the three primary use cases for structured
+          financial statement analysis. For a CFO or finance team, it replaces manual
+          Excel-based reporting with an <strong>interactive, always-current view</strong>
+          of company health.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy">© 2026 Andrés Felipe Alarcón</span>
+      <a href="index.html" class="footer-back">← Back to Portfolio</a>
+    </div>
+  </footer>
+
+</body>
+</html>
