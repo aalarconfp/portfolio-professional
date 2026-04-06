@@ -370,6 +370,7 @@
 
     .card-band { height: 6px; width: 100%; flex-shrink: 0; }
     .band-red    { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .band-blue   { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
     .band-navy   { background: linear-gradient(90deg, #0d1b2e, #1e3a5f); }
     .band-budget { background: linear-gradient(90deg, #38bdf8, #fb923c, #a78bfa); }
     .band-trading{ background: linear-gradient(90deg, #2563eb, #fb923c); }
@@ -666,8 +667,8 @@
       <!-- Right: quick stats panel -->
       <div class="hero-right fade-in">
         <div class="hero-stat">
-          <div class="hero-stat-value">4</div>
-          <div class="hero-stat-label">Live Projects</div>
+          <div class="hero-stat-value">5</div>
+          <div class="hero-stat-label">Projects</div>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
@@ -738,22 +739,24 @@
         </div>
       </a>
 
-      <!-- 02 Real Estate — Navy Blue -->
-      <a href="real-estate-dashboard.html" class="project-card">
-        <div class="card-band band-navy"></div>
+      <!-- 02 Stock Valuation Dashboard — Amber -->
+      <a href="stock-valuation-dashboard.html" class="project-card">
+        <div class="card-band band-blue"></div>
         <div class="card-body">
           <div class="card-number">Project — 02</div>
-          <div class="card-title">Real Estate Dashboard</div>
+          <div class="card-title">Stock Valuation Dashboard</div>
           <p class="card-desc">
-            Property performance and portfolio analytics dashboard built in Power BI.
-            Designed for real estate investors and property managers tracking operational
-            and financial KPIs across a portfolio of assets.
+            Multi-method equity valuation workbook for US stocks built in Excel with Power Query
+            and Power Pivot. Consolidates DCF, Graham's, comparable multiples, and historical
+            multiples into a single consensus BUY / SELL signal with margin of safety applied.
           </p>
           <div class="card-tags">
-            <span class="tag tag-tool">Power BI</span>
-            <span class="tag tag-fin">Real Estate Finance</span>
-            <span class="tag tag-other">Property Management</span>
-            <span class="tag tag-data">Data Analytics</span>
+            <span class="tag tag-tool">Excel</span>
+            <span class="tag tag-tool">Power Query</span>
+            <span class="tag tag-tool">Power Pivot</span>
+            <span class="tag tag-fin">Stock Valuation</span>
+            <span class="tag tag-fin">DCF</span>
+            <span class="tag tag-data">Investment Research</span>
           </div>
         </div>
         <div class="card-footer">
@@ -810,6 +813,30 @@
         </div>
       </a>
 
+      <!-- 05 Real Estate — Navy Blue -->
+      <a href="real-estate-dashboard.html" class="project-card">
+        <div class="card-band band-navy"></div>
+        <div class="card-body">
+          <div class="card-number">Project — 05</div>
+          <div class="card-title">Real Estate Dashboard</div>
+          <p class="card-desc">
+            Property performance and portfolio analytics dashboard built in Power BI.
+            Designed for real estate investors and property managers tracking operational
+            and financial KPIs across a portfolio of assets.
+          </p>
+          <div class="card-tags">
+            <span class="tag tag-tool">Power BI</span>
+            <span class="tag tag-fin">Real Estate Finance</span>
+            <span class="tag tag-other">Property Management</span>
+            <span class="tag tag-data">Data Analytics</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-status" style="color:#f59e0b;">● In Construction</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
     </div>
   </section>
 
@@ -826,7 +853,7 @@
           <p>Open to financial consulting projects, data analytics and accounting process engagements.</p>
         </div>
         <div class="contact-links">
-          <a href="mailto:aalarconfp@gmail.com" class="contact-link">✉ aalarconfp@gmail.com</a>
+          <a href="/cdn-cgi/l/email-protection#79181815180b1a16171f09391e14181015571a1614" class="contact-link">✉ <span class="__cf_email__" data-cfemail="2041414c4152434f4e465060474d41494c0e434f4d">[email&#160;protected]</span></a>
           <a href="https://www.linkedin.com/in/aalarconfp/" target="_blank" class="contact-link">↗ LinkedIn</a>
         </div>
       </div>
@@ -841,13 +868,6 @@
     </div>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     function toggleNav() {
-      document.getElementById('navDrawer').classList.toggle('open');
-    }
-    function closeNav() {
-      document.getElementById('navDrawer').classList.remove('open');
-    }
-    // close drawer when clicking outside
-    document.addEventListener('click', function(e) {
-      const drawer = document.
+      document.getElementById('navDrawer').classList.togg
