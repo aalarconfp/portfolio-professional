@@ -39,36 +39,6 @@
       min-height: 100vh;
     }
 
-    .date-chip {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.4);
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 0.28rem 0.75rem;
-      border-radius: 3px;
-    }
-
-    .upload-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--navy);
-      background: var(--white);
-      border: none;
-      padding: 0.38rem 1rem;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .upload-label:hover { background: var(--off-white); }
-    #fileInput { display: none; }
 
     /* ── HERO STRIP ── */
     .hero {
@@ -113,7 +83,7 @@
       font-size: 0.58rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: #64748b;
+      color: #94a3b8;
       margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
@@ -135,13 +105,13 @@
       color: #ffffff;
     }
 
-    .hero-title .dim { color: rgba(255,255,255,0.4); font-style: italic; }
+    .hero-title .dim { color: rgba(255,255,255,0.45); font-style: italic; }
 
     .hero-sub {
       font-family: 'DM Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.14em;
-      color: #64748b;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
       text-transform: uppercase;
       margin-top: 0.75rem;
     }
@@ -162,11 +132,11 @@
 
     .stat-val {
       font-family: 'DM Sans', sans-serif;
-      font-size: 2.4rem;
+      font-size: 1.75rem;
       font-weight: 500;
       color: #ffffff;
       line-height: 1;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
     }
 
     .stat-lbl {
@@ -463,7 +433,7 @@
       td, thead th { padding: 0.55rem 0.65rem; }
       .hero-stats { gap: 0; flex-wrap: wrap; }
       .hero-stat { padding: 0 1.2rem 0 0; border-right: none; }
-      .stat-val { font-size: 1.9rem; }
+      .stat-val { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -477,17 +447,7 @@
       <h1 class="hero-title">Stock Screener — <span class="dim">Fundamental Ratios</span></h1>
       <p class="hero-sub">Sample screener — not investment advice · Portfolio positions are randomized for illustrative purposes only</p>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1.25rem;flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:0.6rem;">
-        <span class="date-chip" id="dateChip">March 30, 2026</span>
-        <label class="upload-label" for="fileInput">
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 11V1M4 5l4-4 4 4M1 13h14v2H1z"/>
-          </svg>
-          Update data
-        </label>
-        <input type="file" id="fileInput" accept=".xlsx,.xlsm">
-      </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;flex-shrink:0;">
       <div class="hero-stats" id="heroStats">
         <div class="hero-stat">
           <div class="stat-val" id="statTotal">29</div>
@@ -716,17 +676,6 @@ function renderAll(){
     `<div>${DISCLAIMER}</div><div style="margin-top:0.6rem;opacity:0.75;">${FOOTER}</div>`;
 }
 
-// Embed mode: hide hero when loaded inside an iframe
-(function(){
-  if(window.self !== window.top){
-    const hero = document.querySelector('.hero');
-    if(hero) hero.style.display = 'none';
-    // Tighten main padding so table is flush at top
-    const main = document.querySelector('.main');
-    if(main) main.style.paddingTop = '1.2rem';
-  }
-})();
-
 // Tabs
 document.getElementById('tabBar').addEventListener('click', e=>{
   const t = e.target.closest('.tab');
@@ -738,66 +687,8 @@ document.getElementById('tabBar').addEventListener('click', e=>{
   });
 });
 
-// File upload
-document.getElementById('fileInput').addEventListener('change', function(e){
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    try {
-      const wb = XLSX.read(ev.target.result,{type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const raw = XLSX.utils.sheet_to_json(ws,{header:1});
-      let hRow=-1;
-      for(let i=0;i<raw.length;i++){
-        if(raw[i]&&raw[i].some&&raw[i].some(c=>typeof c==='string'&&c.toLowerCase()==='ticker')){hRow=i;break;}
-      }
-      if(hRow<0){alert('Could not find header row in file.');return;}
-      const hdrs = raw[hRow];
-      const ci={};
-      hdrs.forEach((h,i)=>{if(h) ci[String(h).trim()]=i;});
-      const ns=[];
-      for(let i=hRow+1;i<raw.length;i++){
-        const r=raw[i]; if(!r||!r[ci['Ticker']]) continue;
-        ns.push({
-          ticker:r[ci['Ticker']]||'', portfolio:r[ci['Portfolio']]||0,
-          top10:r[ci['Top10']]||0,   rpg:r[ci['RPG']]||0,
-          pvl:r[ci['P/VL']]||0,      yield:r[ci['Yield %']]||0,
-          roe:r[ci['ROE %']]||0,     debt:r[ci['Debt/Ebit']]||0,
-          rRpg:r[ci['Rank_RPG']]||0, rPvl:r[ci['Rank_PVL']]||0,
-          rYield:r[ci['Rank_Yield']]||0, rRoe:r[ci['Rank_ROE']]||0,
-          rDebt:r[ci['Rank_DebtEbit']]||0,
-          strategy:r[ci['Strategy']]||'', comment:r[ci['Comments']]||'', signal:''
-        });
-      }
-      if(ns.length) stocks=ns;
-      const ws2 = wb.Sheets[wb.SheetNames[1]];
-      if(ws2){
-        const sr=XLSX.utils.sheet_to_json(ws2,{header:1});
-        let sh=-1;
-        for(let i=0;i<sr.length;i++){if(sr[i]&&sr[i].some&&sr[i].some(c=>typeof c==='string'&&c.toLowerCase()==='sector')){sh=i;break;}}
-        if(sh>=0){
-          const sc={};
-          sr[sh].forEach((h,i)=>{if(h) sc[String(h).trim()]=i;});
-          const nse=[];
-          for(let i=sh+1;i<sr.length;i++){
-            const r=sr[i]; if(!r||!r[sc['Sector']]) continue;
-            nse.push({sector:r[sc['Sector']]||'',portfolio:r[sc['Portfolio']]||0,
-              rpg:r[sc['Average of RPG']]||0,pvl:r[sc['Average of P/VL']]||0,
-              yield:r[sc['Average of Yield %']]||0,roe:r[sc['Average of ROE %']]||0,
-              debt:r[sc['Average of Debt/Ebit']]||0});
-          }
-          if(nse.length) sectors=nse;
-        }
-      }
-      const d=new Date(file.lastModified);
-      document.getElementById('dateChip').textContent=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-      renderAll();
-    } catch(err){alert('Error reading file: '+err.message);}
-  };
-  reader.readAsArrayBuffer(file);
-});
-
 renderAll();
+
 </script>
 </body>
 </html>
