@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BVC Stock Screener — Andrés Felipe Alarcón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #0d1b2e;
+      --navy-mid:  #112240;
+      --white:     #ffffff;
+      --off-white: #f8fafc;
+      --gray-100:  #f1f5f9;
+      --gray-200:  #e2e8f0;
+      --gray-300:  #cbd5e1;
+      --gray-400:  #94a3b8;
+      --gray-500:  #64748b;
+      --gray-700:  #334155;
+      --gray-900:  #0f172a;
+      --text:      #1e293b;
+      --blue:      #1d4ed8;
+      --blue-light:#3b82f6;
+      --blue-pale: #dbeafe;
+      --blue-text: #1e40af;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .date-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0.28rem 0.75rem;
+      border-radius: 3px;
+    }
+
+    .upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      background: var(--white);
+      border: none;
+      padding: 0.38rem 1rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .upload-label:hover { background: var(--off-white); }
+    #fileInput { display: none; }
+
+    /* ── HERO STRIP ── */
+    .hero {
+      background: var(--navy);
+      padding: 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      left: -200px; bottom: -200px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29,78,216,0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative; z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 3rem;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: #475569;
+      flex-shrink: 0;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+      font-weight: 300;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .hero-title .dim { color: rgba(255,255,255,0.4); font-style: italic; }
+
+    .hero-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-top: 0.75rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 0;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .hero-stat {
+      padding: 0 2rem;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .hero-stat:last-child { border-right: none; padding-right: 0; }
+
+    .stat-val {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-lbl {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.53rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-top: 0.35rem;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 4rem 4rem;
+    }
+
+    /* ── TABS ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray-400);
+      letter-spacing: 0.15em;
+    }
+
+    .section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-700);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.1rem;
+      cursor: pointer;
+      color: var(--gray-500);
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      transition: all 0.15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .tab:last-child { border-right: none; }
+    .tab:hover:not(.active) { background: var(--gray-100); color: var(--gray-700); }
+    .tab.active { background: var(--navy); color: var(--white); }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      overflow: hidden;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead { background: var(--off-white); }
+
+    thead th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      padding: 0.75rem 1rem;
+      text-align: right;
+      border-bottom: 1px solid var(--gray-200);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+
+    thead th:first-child { text-align: left; }
+    thead th:hover { color: var(--navy); }
+    thead th.sorted { color: var(--navy); }
+
+    .sort-arr { margin-left: 3px; opacity: 0.35; font-size: 0.65rem; }
+    thead th.sorted .sort-arr { opacity: 1; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.12s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--off-white); }
+
+    td {
+      padding: 0.7rem 1rem;
+      text-align: right;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 400;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    td:first-child {
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      color: var(--navy);
+    }
+
+    /* ticker cell */
+    .ticker-cell { display: flex; align-items: center; gap: 0.6rem; }
+
+    .port-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .port-dot.off { background: var(--gray-300); }
+
+    .star {
+      font-size: 0.65rem;
+      color: #f59e0b;
+      margin-left: 2px;
+    }
+
+    /* rank pill */
+    .rank {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .rank-top { background: #dcfce7; color: #166534; }
+    .rank-mid { background: var(--gray-100); color: var(--gray-500); }
+    .rank-bot { background: #fee2e2; color: #991b1b; }
+
+    /* badges */
+    .badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+    }
+
+    .badge-buy  { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-sell { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-hold { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    .note-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray-400);
+      text-align: left;
+      white-space: normal;
+      max-width: 140px;
+    }
+
+    /* ── SECTOR TABLE ── */
+    .sector-table thead th { text-align: right; }
+    .sector-table thead th:first-child { text-align: left; }
+    .sector-table td { text-align: right; }
+    .sector-table td:first-child {
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--navy);
+    }
+
+    /* ── FOOTER NOTE ── */
+    .footer-note {
+      margin-top: 1.5rem;
+      padding: 0.9rem 1.2rem;
+      border-left: 2px solid var(--blue-light);
+      background: var(--blue-pale);
+      border-radius: 0 4px 4px 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.04em;
+      color: var(--blue-text);
+      line-height: 1.7;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.57rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--gray-200);
+      padding: 1.5rem 4rem;
+      margin-top: 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+    }
+
+    .footer-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-back:hover { color: var(--navy); }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero { padding: 2.5rem 1.5rem; }
+      .hero-inner { flex-direction: column; align-items: flex-start; gap: 2rem; }
+      .hero-stats { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; width: 100%; }
+      .hero-stat:first-child { padding-left: 0; }
+      .main { padding: 2rem 1.5rem 3rem; }
+      footer { padding: 1.5rem; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .tabs { width: 100%; overflow-x: auto; }
+    }
+
+    @media (max-width: 600px) {
+      table { font-size: 0.76rem; }
+      td, thead th { padding: 0.55rem 0.65rem; }
+      .hero-stats { gap: 0; flex-wrap: wrap; }
+      .hero-stat { padding: 0 1.2rem 0 0; border-right: none; }
+      .stat-val { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-eyebrow">BVC · Bolsa de Valores de Colombia</p>
+      <h1 class="hero-title">Stock Screener — <span class="dim">Fundamental Ratios</span></h1>
+      <p class="hero-sub">Sample screener — not investment advice · Portfolio positions are randomized for illustrative purposes only</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1.25rem;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <span class="date-chip" id="dateChip">March 30, 2026</span>
+        <label class="upload-label" for="fileInput">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 11V1M4 5l4-4 4 4M1 13h14v2H1z"/>
+          </svg>
+          Update data
+        </label>
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm">
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div class="hero-stat">
+          <div class="stat-val" id="statTotal">29</div>
+          <div class="stat-lbl">Total stocks</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-val" id="statTop10">10</div>
+          <div class="stat-lbl">Top 10</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-val" id="statPortfolio">—</div>
+          <div class="stat-lbl">Portfolio</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-val" id="statBuys">—</div>
+          <div class="stat-lbl">Buy signals</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="section-header">
+    <div class="section-label">
+      <span class="section-num">01 /</span>
+      <span class="section-title">Stock rankings</span>
+    </div>
+    <div class="tabs" id="tabBar">
+      <div class="tab active" data-tab="all">All stocks</div>
+      <div class="tab" data-tab="top10">Top 10</div>
+      <div class="tab" data-tab="portfolio">Portfolio</div>
+      <div class="tab" data-tab="sectors">Sectors</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="port-dot"></div> In portfolio</div>
+    <div class="legend-item"><div class="port-dot off"></div> Not held</div>
+    <div class="legend-item"><span class="star">★</span> Top 10</div>
+    <div class="legend-item"><span class="rank rank-top">#1</span> Top 30 %</div>
+    <div class="legend-item"><span class="rank rank-bot">#32</span> Bottom 30 %</div>
+  </div>
+
+  <!-- ALL / TOP10 / PORTFOLIO tables -->
+  <div id="pane-all">
+    <div class="table-wrap">
+      <table id="tAll"><thead><tr id="hAll"></tr></thead><tbody id="bAll"></tbody></table>
+    </div>
+  </div>
+
+  <div id="pane-top10" class="hidden">
+    <div class="table-wrap">
+      <table><thead><tr id="hTop"></tr></thead><tbody id="bTop"></tbody></table>
+    </div>
+  </div>
+
+  <div id="pane-portfolio" class="hidden">
+    <div class="table-wrap">
+      <table><thead><tr id="hPort"></tr></thead><tbody id="bPort"></tbody></table>
+    </div>
+  </div>
+
+  <!-- SECTORS -->
+  <div id="pane-sectors" class="hidden">
+    <div class="table-wrap">
+      <table class="sector-table"><thead><tr id="hSec"></tr></thead><tbody id="bSec"></tbody></table>
+    </div>
+  </div>
+
+  <div class="footer-note" id="footerNote"></div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2026 Andrés Felipe Alarcón · BVC Stock Screener</span>
+    <a class="footer-back" href="index.html">← Back to portfolio</a>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const STOCKS = [
+  {ticker:'MINEROS',  portfolio:0,top10:1,rpg:8.30, pvl:2.51,yield:2.37, roe:31.78,debt:0.05,  rRpg:5, rPvl:30,rYield:26,rRoe:1, rDebt:1, strategy:'',    comment:'',                  signal:'Buy'},
+  {ticker:'TERPEL',   portfolio:1,top10:1,rpg:5.64, pvl:1.03,yield:7.71, roe:20.25,debt:2.90,  rRpg:1, rPvl:19,rYield:7, rRoe:3, rDebt:3, strategy:'Buy',  comment:'',                  signal:'Sell'},
+  {ticker:'PROMIGAS', portfolio:0,top10:1,rpg:6.63, pvl:1.11,yield:8.33, roe:17.27,debt:6.42,  rRpg:4, rPvl:20,rYield:6, rRoe:6, rDebt:11,strategy:'',    comment:'',                  signal:'Hold'},
+  {ticker:'BVC',      portfolio:0,top10:1,rpg:9.90, pvl:1.69,yield:9.71, roe:17.13,debt:5.70,  rRpg:13,rPvl:28,rYield:1, rRoe:7, rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'BHI',      portfolio:1,top10:1,rpg:10.00,pvl:0.95,yield:6.71, roe:16.27,debt:5.27,  rRpg:14,rPvl:16,rYield:11,rRoe:8, rDebt:8, strategy:'Hold', comment:'Div Payout Mar 26', signal:''},
+  {ticker:'ECOPETROL',portfolio:0,top10:1,rpg:11.07,pvl:0.91,yield:9.03, roe:10.76,debt:4.04,  rRpg:17,rPvl:14,rYield:2, rRoe:11,rDebt:4, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFCIBEST', portfolio:1,top10:1,rpg:9.45, pvl:1.68,yield:6.34, roe:17.47,debt:2.00,  rRpg:9, rPvl:27,rYield:12,rRoe:4, rDebt:8, strategy:'Buy',  comment:'Div Payout Mar 26', signal:''},
+  {ticker:'EXITO',    portfolio:0,top10:1,rpg:8.33, pvl:0.71,yield:1.58, roe:8.70, debt:2.86,  rRpg:6, rPvl:10,rYield:27,rRoe:15,rDebt:2, strategy:'',    comment:'',                  signal:''},
+  {ticker:'GEB',      portfolio:1,top10:1,rpg:9.77, pvl:1.35,yield:8.62, roe:13.84,debt:8.48,  rRpg:12,rPvl:22,rYield:5, rRoe:9, rDebt:13,strategy:'',    comment:'',                  signal:''},
+  {ticker:'GRUBOLIVAR',portfolio:1,top10:1,rpg:5.82,pvl:0.53,yield:3.17, roe:8.87, debt:43.82, rRpg:2, rPvl:8, rYield:24,rRoe:14,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFGRUPOARG',portfolio:0,top10:0,rpg:9.18,pvl:0.98,yield:5.40, roe:-4.97,debt:5.23,  rRpg:7, rPvl:17,rYield:15,rRoe:31,rDebt:9, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFCEMARGOS',portfolio:0,top10:0,rpg:33.52,pvl:1.57,yield:5.94,roe:4.40, debt:4.31,  rRpg:27,rPvl:25,rYield:13,rRoe:23,rDebt:6, strategy:'',    comment:'',                  signal:''},
+  {ticker:'NUTRESA',  portfolio:0,top10:0,rpg:112.59,pvl:25.78,yield:0.00,roe:21.72,debt:7.33, rRpg:28,rPvl:31,rYield:28,rRoe:2, rDebt:12,strategy:'',    comment:'',                  signal:''},
+  {ticker:'CELSIA',   portfolio:0,top10:0,rpg:24.22,pvl:1.47,yield:6.85, roe:5.97, debt:5.09,  rRpg:25,rPvl:24,rYield:9, rRoe:21,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFCORFICOL',portfolio:1,top10:0,rpg:15.34,pvl:0.48,yield:6.75,roe:3.22, debt:12.82, rRpg:21,rPvl:6, rYield:10,rRoe:25,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'CEMARGOS', portfolio:0,top10:0,rpg:29.30,pvl:1.37,yield:5.94, roe:4.40, debt:4.31,  rRpg:26,rPvl:23,rYield:14,rRoe:22,rDebt:5, strategy:'',    comment:'',                  signal:''},
+  {ticker:'ENKA',     portfolio:0,top10:0,rpg:0,    pvl:0.40,yield:8.89, roe:-0.11,debt:0,      rRpg:29,rPvl:4, rYield:3, rRoe:28,rDebt:15,strategy:'',    comment:'',                  signal:''},
+  {ticker:'CIBEST',   portfolio:0,top10:0,rpg:9.45, pvl:1.68,yield:4.72, roe:17.47,debt:2.00,  rRpg:10,rPvl:26,rYield:16,rRoe:5, rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFAVAL',   portfolio:0,top10:0,rpg:9.37, pvl:0.91,yield:3.72, roe:10.02,debt:15.43, rRpg:8, rPvl:15,rYield:21,rRoe:12,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'CONCONCRET',portfolio:0,top10:0,rpg:0,   pvl:0.39,yield:0,    roe:-12.25,debt:0,     rRpg:32,rPvl:3, rYield:28,rRoe:32,rDebt:17,strategy:'',    comment:'',                  signal:''},
+  {ticker:'BOGOTA',   portfolio:0,top10:0,rpg:9.49, pvl:0.76,yield:4.25, roe:8.23, debt:20.53, rRpg:11,rPvl:11,rYield:19,rRoe:17,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'GRUPOAVAL',portfolio:0,top10:0,rpg:10.18,pvl:0.99,yield:3.59, roe:10.02,debt:15.43, rRpg:15,rPvl:18,rYield:23,rRoe:13,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFDAVVNDA',portfolio:1,top10:0,rpg:10.40,pvl:0.78,yield:3.76, roe:7.75, debt:15.53, rRpg:16,rPvl:12,rYield:20,rRoe:20,rDebt:8, strategy:'Sell', comment:'',                  signal:''},
+  {ticker:'GRUPOSURA',portfolio:0,top10:0,rpg:23.95,pvl:0.88,yield:2.88, roe:7.97, debt:3.55,  rRpg:24,rPvl:13,rYield:25,rRoe:19,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'PFGRUPSURA',portfolio:0,top10:0,rpg:19.02,pvl:0.70,yield:3.61,roe:7.97, debt:3.55,  rRpg:23,rPvl:9, rYield:22,rRoe:18,rDebt:8, strategy:'',    comment:'',                  signal:''},
+  {ticker:'ISA',      portfolio:0,top10:0,rpg:12.79,pvl:1.74,yield:4.52, roe:13.74,debt:4.95,  rRpg:19,rPvl:29,rYield:17,rRoe:10,rDebt:7, strategy:'',    comment:'',                  signal:''},
+  {ticker:'ETB',      portfolio:0,top10:0,rpg:0,    pvl:0.10,yield:0,    roe:-1.07,debt:0,      rRpg:30,rPvl:1, rYield:28,rRoe:29,rDebt:14,strategy:'',    comment:'',                  signal:''},
+  {ticker:'CORFICOLCF',portfolio:1,top10:0,rpg:14.47,pvl:0.46,yield:7.32,roe:3.22, debt:12.82, rRpg:20,rPvl:5, rYield:8, rRoe:24,rDebt:8, strategy:'Sell', comment:'',                  signal:''},
+  {ticker:'GRUPOARGOS',portfolio:0,top10:0,rpg:11.57,pvl:1.24,yield:4.44,roe:-4.97,debt:5.23,  rRpg:18,rPvl:21,rYield:18,rRoe:30,rDebt:10,strategy:'',    comment:'',                  signal:''},
+];
+
+const SECTORS = [
+  {sector:'Consumer non-durables', portfolio:0,rpg:112.59,pvl:25.78,yield:0,  roe:21.72,debt:7.33},
+  {sector:'Energy minerals',       portfolio:0,rpg:11.07, pvl:0.91, yield:9.03,roe:10.76,debt:4.04},
+  {sector:'Finance',               portfolio:1,rpg:12.06, pvl:0.96, yield:5.12,roe:10.43,debt:12.19},
+  {sector:'Non-energy minerals',   portfolio:0,rpg:18.37, pvl:1.53, yield:4.82,roe:6.13, debt:3.83},
+  {sector:'Process industries',    portfolio:0,rpg:0,     pvl:0.40, yield:8.89,roe:-0.11,debt:0},
+  {sector:'Retail trade',          portfolio:1,rpg:6.99,  pvl:0.87, yield:4.65,roe:14.48,debt:2.88},
+  {sector:'Utilities',             portfolio:1,rpg:13.35, pvl:1.42, yield:7.08,roe:12.71,debt:6.24},
+];
+
+const FOOTER = '⚠ Calculated ratio. ETB, CONCONCRET, and ENKA present negative EBIT. PEI: investment fund. 🚫 Excluded due to low volume: ELCONDOR.CL, BBVACOL.CL, CNEC.CL, VILLAS.CL, PFVILLAS.CL';
+const DISCLAIMER = 'Important notice: This page does not constitute investment advice. All analysis presented here is for educational purposes only — investing involves risk, including the possible loss of capital. Each individual should assess their own risk profile before making any investment decision. Portfolio positions shown are randomized and for illustrative purposes only; they do not reflect any real holdings or recommendations.';
+
+let stocks = STOCKS.slice();
+let sectors = SECTORS.slice();
+let sortKey = 'rpg'; let sortAsc = true;
+const total = () => stocks.length;
+
+const COLS = [
+  {key:'ticker',  label:'Ticker',    num:false},
+  {key:'rpg',     label:'RPG',       num:true, rk:'rRpg'},
+  {key:'pvl',     label:'P / VL',    num:true, rk:'rPvl'},
+  {key:'yield',   label:'Yield %',   num:true, rk:'rYield'},
+  {key:'roe',     label:'ROE %',     num:true, rk:'rRoe'},
+  {key:'debt',    label:'Debt/EBIT', num:true, rk:'rDebt'},
+  {key:'strategy',label:'Signal',    num:false},
+  {key:'comment', label:'Note',      num:false},
+];
+
+function fmt(v){ const n=parseFloat(v); return isNaN(n)?'—':n.toFixed(2); }
+
+function rankCls(r){
+  if(!r) return 'rank-mid';
+  const t = total();
+  if(r <= Math.round(t*0.3)) return 'rank-top';
+  if(r >= Math.round(t*0.7)) return 'rank-bot';
+  return 'rank-mid';
+}
+
+function badge(s){
+  if(!s) return '';
+  const m = {'buy':'badge-buy','sell':'badge-sell','hold':'badge-hold'};
+  return `<span class="badge ${m[s.toLowerCase()]||''}">${s}</span>`;
+}
+
+function buildHead(id, clickable){
+  const tr = document.getElementById(id);
+  tr.innerHTML = COLS.map(c=>`
+    <th data-key="${c.key}" class="${c.key===sortKey&&clickable?'sorted':''}">
+      ${c.label}${c.num&&clickable?`<span class="sort-arr">${c.key===sortKey?(sortAsc?'↑':'↓'):'↕'}</span>`:''}
+    </th>`).join('');
+  if(clickable) tr.querySelectorAll('th[data-key]').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const k=th.dataset.key;
+      if(!COLS.find(c=>c.key===k).num) return;
+      if(sortKey===k) sortAsc=!sortAsc; else {sortKey=k;sortAsc=true;}
+      renderAll();
+    });
+  });
+}
+
+function buildRows(id, data){
+  const sorted = [...data].sort((a,b)=>{
+    const av=a[sortKey]??'', bv=b[sortKey]??'';
+    if(typeof av==='string') return sortAsc?av.localeCompare(bv):bv.localeCompare(av);
+    return sortAsc?av-bv:bv-av;
+  });
+  document.getElementById(id).innerHTML = sorted.map(s=>`<tr>
+    <td><div class="ticker-cell">
+      <div class="port-dot ${s.portfolio?'':'off'}"></div>
+      <span>${s.ticker}</span>
+      ${s.top10?'<span class="star">★</span>':''}
+    </div></td>
+    <td>${fmt(s.rpg)}<span class="rank ${rankCls(s.rRpg)}">#${s.rRpg||'—'}</span></td>
+    <td>${fmt(s.pvl)}<span class="rank ${rankCls(s.rPvl)}">#${s.rPvl||'—'}</span></td>
+    <td>${fmt(s.yield)}<span class="rank ${rankCls(s.rYield)}">#${s.rYield||'—'}</span></td>
+    <td>${fmt(s.roe)}<span class="rank ${rankCls(s.rRoe)}">#${s.rRoe||'—'}</span></td>
+    <td>${fmt(s.debt)}<span class="rank ${rankCls(s.rDebt)}">#${s.rDebt||'—'}</span></td>
+    <td>${badge(s.strategy)||badge(s.signal)||'<span style="color:var(--gray-300)">—</span>'}</td>
+    <td class="note-text">${s.comment||''}</td>
+  </tr>`).join('');
+}
+
+function buildSectors(){
+  document.getElementById('hSec').innerHTML = `
+    <th>Sector</th><th>Avg RPG</th><th>Avg P/VL</th><th>Avg Yield %</th><th>Avg ROE %</th><th>Avg Debt/EBIT</th><th>Portfolio</th>`;
+  document.getElementById('bSec').innerHTML = sectors.map(s=>`<tr>
+    <td>${s.sector}</td>
+    <td>${fmt(s.rpg)}</td><td>${fmt(s.pvl)}</td>
+    <td>${fmt(s.yield)}</td><td>${fmt(s.roe)}</td><td>${fmt(s.debt)}</td>
+    <td>${s.portfolio?'<span class="badge badge-buy">Yes</span>':'<span style="color:var(--gray-300)">—</span>'}</td>
+  </tr>`).join('');
+}
+
+function updateHero(){
+  document.getElementById('statTotal').textContent = stocks.length;
+  document.getElementById('statTop10').textContent = stocks.filter(s=>s.top10).length;
+  document.getElementById('statPortfolio').textContent = stocks.filter(s=>s.portfolio).length;
+  document.getElementById('statBuys').textContent = stocks.filter(s=>s.strategy==='Buy'||s.signal==='Buy').length;
+}
+
+function renderAll(){
+  updateHero();
+  buildHead('hAll',true);  buildRows('bAll', stocks);
+  buildHead('hTop',true);  buildRows('bTop', stocks.filter(s=>s.top10));
+  buildHead('hPort',true); buildRows('bPort',stocks.filter(s=>s.portfolio));
+  buildSectors();
+  document.getElementById('footerNote').innerHTML =
+    `<div>${DISCLAIMER}</div><div style="margin-top:0.6rem;opacity:0.75;">${FOOTER}</div>`;
+}
+
+// Embed mode: hide hero when loaded inside an iframe
+(function(){
+  if(window.self !== window.top){
+    const hero = document.querySelector('.hero');
+    if(hero) hero.style.display = 'none';
+    // Tighten main padding so table is flush at top
+    const main = document.querySelector('.main');
+    if(main) main.style.paddingTop = '1.2rem';
+  }
+})();
+
+// Tabs
+document.getElementById('tabBar').addEventListener('click', e=>{
+  const t = e.target.closest('.tab');
+  if(!t) return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  ['all','top10','portfolio','sectors'].forEach(id=>{
+    document.getElementById('pane-'+id).classList.toggle('hidden', id!==t.dataset.tab);
+  });
+});
+
+// File upload
+document.getElementById('fileInput').addEventListener('change', function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      const wb = XLSX.read(ev.target.result,{type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws,{header:1});
+      let hRow=-1;
+      for(let i=0;i<raw.length;i++){
+        if(raw[i]&&raw[i].some&&raw[i].some(c=>typeof c==='string'&&c.toLowerCase()==='ticker')){hRow=i;break;}
+      }
+      if(hRow<0){alert('Could not find header row in file.');return;}
+      const hdrs = raw[hRow];
+      const ci={};
+      hdrs.forEach((h,i)=>{if(h) ci[String(h).trim()]=i;});
+      const ns=[];
+      for(let i=hRow+1;i<raw.length;i++){
+        const r=raw[i]; if(!r||!r[ci['Ticker']]) continue;
+        ns.push({
+          ticker:r[ci['Ticker']]||'', portfolio:r[ci['Portfolio']]||0,
+          top10:r[ci['Top10']]||0,   rpg:r[ci['RPG']]||0,
+          pvl:r[ci['P/VL']]||0,      yield:r[ci['Yield %']]||0,
+          roe:r[ci['ROE %']]||0,     debt:r[ci['Debt/Ebit']]||0,
+          rRpg:r[ci['Rank_RPG']]||0, rPvl:r[ci['Rank_PVL']]||0,
+          rYield:r[ci['Rank_Yield']]||0, rRoe:r[ci['Rank_ROE']]||0,
+          rDebt:r[ci['Rank_DebtEbit']]||0,
+          strategy:r[ci['Strategy']]||'', comment:r[ci['Comments']]||'', signal:''
+        });
+      }
+      if(ns.length) stocks=ns;
+      const ws2 = wb.Sheets[wb.SheetNames[1]];
+      if(ws2){
+        const sr=XLSX.utils.sheet_to_json(ws2,{header:1});
+        let sh=-1;
+        for(let i=0;i<sr.length;i++){if(sr[i]&&sr[i].some&&sr[i].some(c=>typeof c==='string'&&c.toLowerCase()==='sector')){sh=i;break;}}
+        if(sh>=0){
+          const sc={};
+          sr[sh].forEach((h,i)=>{if(h) sc[String(h).trim()]=i;});
+          const nse=[];
+          for(let i=sh+1;i<sr.length;i++){
+            const r=sr[i]; if(!r||!r[sc['Sector']]) continue;
+            nse.push({sector:r[sc['Sector']]||'',portfolio:r[sc['Portfolio']]||0,
+              rpg:r[sc['Average of RPG']]||0,pvl:r[sc['Average of P/VL']]||0,
+              yield:r[sc['Average of Yield %']]||0,roe:r[sc['Average of ROE %']]||0,
+              debt:r[sc['Average of Debt/Ebit']]||0});
+          }
+          if(nse.length) sectors=nse;
+        }
+      }
+      const d=new Date(file.lastModified);
+      document.getElementById('dateChip').textContent=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+      renderAll();
+    } catch(err){alert('Error reading file: '+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+renderAll();
+</script>
+</body>
+</html>
