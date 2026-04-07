@@ -1,1 +1,2 @@
-Page for portfolio finance projects. profile: Senior business and finance professional with deep expertise in financial analysis, forecasting, and performance management. Background spans financial control, accounting, and FP&A across the financial, real estate, and professional services sectors. Specialized in translating complex data into clear, decision-driving insights. 
+Site showcasing data analytics and finance projects developed. Each project includes a live interactive dashboard, methodology breakdown, and business context.
+Includes real-world experience in financial analysis, FP&A, accounting, and data visualization.
