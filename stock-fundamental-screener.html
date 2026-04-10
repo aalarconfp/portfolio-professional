@@ -582,25 +582,23 @@
       <h1>Stock Market<br>Fundamental BVC Screener</h1>
 
       <div class="meta-row">
-        <span class="meta-item">Tool <span>Excel · Power Query · Power Pivot · VBA</span></span>
+        <span class="meta-item">Tool <span>Excel</span></span>
         <span class="meta-item">Source <span>TradingView · Claude AI</span></span>
         <span class="meta-item">Scope <span>Colombian Equities (BVC)</span></span>
       </div>
 
       <div class="tags">
-        <span class="tag tag-tool">Excel</span>
         <span class="tag tag-tool">Power Query</span>
         <span class="tag tag-tool">Power Pivot</span>
         <span class="tag tag-tool">VBA</span>
         <span class="tag tag-fin">Stock Screener</span>
         <span class="tag tag-fin">Fundamental Analysis</span>
         <span class="tag tag-data">Data Pipeline</span>
-        <span class="tag tag-green">BVC · Colombia</span>
+        <span class="tag tag-green">Equity Valuation</span>
       </div>
 
       <div class="action-links">
         <a href="bvc-terminal.html" target="_blank" class="action-btn primary">↗ View Live Dashboard</a>
-        <a href="YOUR_YOUTUBE_URL" target="_blank" class="action-btn secondary">▶ Walkthrough</a>
       </div>
     </div>
   </div>
@@ -747,103 +745,6 @@
           <div class="source-box" style="flex:1; min-width:200px;">
             <span class="source-label">AI Extraction</span>
             <a href="https://claude.ai" target="_blank">↗ Claude (Anthropic)</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Update Workflow -->
-      <div>
-        <h2>Update Workflow</h2>
-        <p>
-          The screener is designed to be refreshed in under five minutes per analysis period,
-          with no structural changes to the workbook. The end-to-end update process:
-        </p>
-
-        <div class="workflow">
-          <div class="workflow-step">
-            <div class="step-num">01</div>
-            <div class="step-body">
-              <div class="step-title">Capture TradingView Screenshot</div>
-              <div class="step-desc">Open the saved custom screener on TradingView and take two screenshots covering all displayed columns. Save with the analysis date in the filename (e.g., <em>TradingView Screenshoot Data BVC 2026-03-30</em>).</div>
-            </div>
-          </div>
-          <div class="workflow-step">
-            <div class="step-num">02</div>
-            <div class="step-body">
-              <div class="step-title">Extract Data via Claude AI</div>
-              <div class="step-desc">Upload the screenshots to Claude. Claude reads the table, normalizes headers, handles edge cases (negative values, missing data, formatting), and outputs a structured Excel-compatible file: <em>best-view-data-[date].xlsx</em>.</div>
-            </div>
-          </div>
-          <div class="workflow-step">
-            <div class="step-num">03</div>
-            <div class="step-body">
-              <div class="step-title">Update Power Query Source</div>
-              <div class="step-desc">In the <em>Best Ratio Stock</em> Power Query, update the file path in the M source line to point to the new data file. Validate the query executes without errors.</div>
-            </div>
-          </div>
-          <div class="workflow-step">
-            <div class="step-num">04</div>
-            <div class="step-body">
-              <div class="step-title">Refresh & Validate Dashboard</div>
-              <div class="step-desc">Close Power Query and refresh all queries. The PivotTable and ranking dashboard update automatically. Validate that the Top 10 composite scores are correctly sorted and that strategy signals are applied.</div>
-            </div>
-          </div>
-          <div class="workflow-step">
-            <div class="step-num">05</div>
-            <div class="step-body">
-              <div class="step-title">Archive Period Snapshot via VBA</div>
-              <div class="step-desc">Run the VBA macro to save the current PivotTable state as a named snapshot in the historical data table. Update the <em>Best Ratio Stock Previous Period</em> query to reference the snapshot, then refresh to display the period-over-period Top 10 comparison.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dashboard Sections -->
-      <div>
-        <h2>Dashboard Sections</h2>
-        <p>
-          The workbook is organized into <strong>three analytical views</strong>, each addressing a
-          distinct phase of the investment selection process — from universe ranking to portfolio
-          decision-making.
-        </p>
-
-        <div class="sheet-grid">
-          <div class="sheet-card">
-            <div class="sheet-num">View 01</div>
-            <div class="sheet-title">Full Universe Rankings</div>
-            <div class="sheet-desc">
-              Complete ranking table of ~30 BVC equities sorted by composite fundamental score.
-              Displays all five ratio ranks, individual ratio values, sector classification,
-              portfolio membership indicators, and analyst strategy signals (Buy / Hold / Sell).
-              Conditionally formatted to highlight Top 10 entries.
-            </div>
-          </div>
-          <div class="sheet-card">
-            <div class="sheet-num">View 02</div>
-            <div class="sheet-title">Top 10 Selector</div>
-            <div class="sheet-desc">
-              Focused view of the current Top 10 stocks with their composite score breakdown.
-              Includes portfolio-overlap indicators (whether the stock is already held)
-              and dividend event flags — supporting buy/add decisions ahead of ex-dividend dates.
-            </div>
-          </div>
-          <div class="sheet-card">
-            <div class="sheet-num">View 03</div>
-            <div class="sheet-title">Period-over-Period Comparison</div>
-            <div class="sheet-desc">
-              Side-by-side comparison of the current and previous period's Top 10. Tracks
-              which stocks have entered, remained in, or dropped out of the selection — providing
-              a systematic, evidence-based basis for portfolio rebalancing rather than reactive decisions.
-            </div>
-          </div>
-          <div class="sheet-card">
-            <div class="sheet-num">View 04</div>
-            <div class="sheet-title">Historical Snapshots Archive</div>
-            <div class="sheet-desc">
-              VBA-generated table accumulating all past analysis periods in a single structured
-              dataset. Enables long-term trend analysis of ranking movements and strategy
-              signal consistency across market cycles.
-            </div>
           </div>
         </div>
       </div>
